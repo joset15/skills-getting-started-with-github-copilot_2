@@ -18,6 +18,24 @@
         <div id="activities-list">
           <!-- Activities will be loaded here -->
           <p>Loading activities...</p>
+
+          <!-- Template for activity cards (JS can clone this and fill data) -->
+          <template id="activity-template">
+            <div class="activity-card" role="article" aria-live="polite">
+              <h4 class="activity-title"><!-- title --></h4>
+              <p class="activity-description"><!-- description --></p>
+              <p class="activity-schedule"><strong>Schedule:</strong> <!-- schedule --></p>
+              <p class="activity-capacity"><strong>Capacity:</strong> <span class="capacity-count"><!-- max / current --></span></p>
+
+              <!-- Participants section -->
+              <div class="participants-section">
+                <h5 class="participants-title">Participants</h5>
+                <ul class="participants-list">
+                  <!-- JS should insert <li class="participant-item">email@school.edu</li> items here -->
+                </ul>
+              </div>
+            </div>
+          </template>
         </div>
       </section>
 
