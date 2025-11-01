@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
-      const response = await fetch("/activities");
+  const response = await fetch("/activities", { cache: "no-store" });
       const activities = await response.json();
 
       // Clear loading message / previous content
@@ -33,9 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (details.participants && details.participants.length > 0) {
             details.participants.forEach((email) => {
-              const li = document.createElement("li");
-              li.className = "participant-item";
-              li.textContent = email;
+              const li = createParticipantListItem(email, name);
               participantsList.appendChild(li);
             });
           } else {
@@ -62,9 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ul.className = "participants-list";
           if (details.participants && details.participants.length > 0) {
             details.participants.forEach((email) => {
-              const li = document.createElement("li");
-              li.className = "participant-item";
-              li.textContent = email;
+              const li = createParticipantListItem(email, name);
               ul.appendChild(li);
             });
           } else {
@@ -112,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = "message success";
         signupForm.reset();
 
-        // Refresh the activities list (updates participants)
-        fetchActivities();
+  // Refresh the activities list (updates participants)
+  await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "message error";
@@ -135,4 +131,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   fetchActivities();
+
+  // Helper to create a participant <li> with a delete button
+  function createParticipantListItem(email, activityName) {
+    const li = document.createElement("li");
+    li.className = "participant-item";
+
+    const span = document.createElement("span");
+    span.className = "participant-email";
+    span.textContent = email;
+
+    const btn = document.createElement("button");
+    btn.className = "delete-btn";
+    btn.setAttribute("aria-label", `Unregister ${email} from ${activityName}`);
+    btn.type = "button";
+    btn.textContent = "✕";
+
+    // Click handler for unregistering
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      // Confirm optionally (keeps it simple, no modal)
+      if (!confirm(`Unregister ${email} from ${activityName}?`)) return;
+
+      try {
+        const res = await fetch(
+          `/activities/${encodeURIComponent(activityName)}/participants?email=${encodeURIComponent(email)}`,
+          { method: "DELETE", cache: "no-store" }
+        );
+
+        if (res.ok) {
+          // Remove the li from DOM or refresh list
+          li.remove();
+          // Refresh activities to update counts and UI
+          await fetchActivities();
+        } else {
+          const data = await res.json();
+          alert(data.detail || data.message || "Failed to unregister");
+        }
+      } catch (err) {
+        console.error("Error unregistering:", err);
+        alert("Failed to unregister. Please try again.");
+      }
+    });
+
+    li.appendChild(span);
+    li.appendChild(btn);
+    return li;
+  }
 });
