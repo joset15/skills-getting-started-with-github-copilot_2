@@ -108,8 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = "message success";
         signupForm.reset();
 
-  // Refresh the activities list (updates participants)
-  await fetchActivities();
+        // Refresh the activities list (updates participants)
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "message error";
